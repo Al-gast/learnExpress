@@ -1,16 +1,16 @@
-//instantiate express module here
 const express = require("express");
 
-//use express in app variable here
+// Get routes to the variable
+
+const router = require("./src/routes");
+
 const app = express();
 
-//define the server port here
-const PORT = 8000;
+const port = 8000;
 
-//create the homepage route here and inside it create res means, response, and it send string "Hello Express!" to the API
-app.get("/", (req, res) => {
-  res.send("Hello Semuanya");
-});
+app.use(express.json());
 
-// Create listen here
-app.listen(PORT, () => console.log(`Server running on server ${PORT}`));
+// Add endpoint grouping and router
+app.use("/api/v1/", router);
+
+app.listen(port, () => console.log(`Listening on port ${port}!`));
