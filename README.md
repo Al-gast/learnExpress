@@ -1,29 +1,31 @@
-> First time, install Node.js and NPM on Your PC [link](https://nodejs.org/)
+# Nodemon
 
-# Make 'Hello Express' with expressjs
+Nodemon is a utility that will monitor for any changes in your source and automatically restart your server. Perfect for development.
 
-`Express JS` is a framework from NodeJS which is designed flexibly and simply to help the back end application development stage.
+Install nodemon on devDependencies :
 
-Add below code to make `Hello Express` :
+```text
+npm i -D nodemon
+```
 
-> File : `index.js`
+Run app using :
+
+```text
+nodemon index.js
+```
+
+or, create a script in package.json at “script” section :
 
 ```javascript
-//instantiate express module
-const express = require("express");
+...
+"scripts": {
+    "start": "nodemon index.js",
+},
+...
+```
 
-//use express in app variable
-const app = express();
+then, run app using :
 
-//define the server port
-const port = 5000;
-
-//create the homepage route
-app.get("/", (req, res) => {
-  //res means, response, and it send string "Hello Express!" to the API
-  res.send("Hello Express!");
-});
-
-//when this nodejs app executed, it will listen to defined port
-app.listen(port, () => console.log(`Listening on port ${port}!`));
+```text
+npm start
 ```
