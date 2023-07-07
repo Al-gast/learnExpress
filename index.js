@@ -1,16 +1,66 @@
-//instantiate express module here
-const express = require("express");
+const express = require('express')
 
-//use express in app variable here
-const app = express();
+const app = express()
+const port = 8000
 
-//define the server port here
-const PORT = 8000;
+//allow this app to receive incoming json request
+//Create app.use for express.json here
 
-//create the homepage route here and inside it create res means, response, and it send string "Hello Express!" to the API
-app.get("/", (req, res) => {
-  res.send("Hello Semuanya");
+let todos = [
+    {
+        id: 1,
+        title: "Cuci tangan",
+        isDone: true
+    },
+    {
+        id: 2,
+        title: "Jaga jarak",
+        isDone: false
+    },
+]
+
+//GET list route: simply send arr of obj todos on your user screen
+// Create method GET here
+
+app.get("/todos", (req, res) => {
+  res.send({ data: todos});
 });
 
-// Create listen here
-app.listen(PORT, () => console.log(`Server running on server ${PORT}`));
+//GET detail route: send the todo obj, by received id request params
+// Create method GET by received id here
+
+app.get("/todo/:id", (req, res) => {
+  const id = req.params.id;
+  const index = id - 1;
+  res.send(todos[index]);
+});
+
+//POST route: receive json body request, from user input, then push to todos array
+// Create method POST here
+
+app.post("/todo", (req, res) => {
+  todos = [...todos, req.body];
+  res.send(todos[index]);
+});
+
+
+//PATCH route: receive json body request, from user input, then push to todos array
+//by object id
+// Create method PATCH here
+
+app.patch("/todo/:id", (req, res) => {
+  const id = req.params.id;
+  todos[id - 1] = {...todos[id - 1], ...req.body};
+  res.send({ data: todos[id - 1]});
+});
+
+//DELETE route: delete the todo obj, by received id request params
+// Create method DELETE here
+
+app.delete("/todo/:id", (req, res) => {
+  const {id} = req.params;
+  todos = todos.filter((todo) => todo.id != id);
+  res.send({ data: todos });
+})
+
+app.listen(port, () => console.log(`Listening on port ${port}!`))
