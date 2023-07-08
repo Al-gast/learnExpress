@@ -1,30 +1,26 @@
-
-//instantiate express module here
-
 const express = require("express");
-
-// Init express router here..
 
 const router = express.Router();
 
-// Get controller here
-
+// Controller
 const {
   getTodos,
   getTodo,
   addTodo,
   updateTodo,
   deleteTodo,
-} = require("../controller/todo")
+} = require("../controllers/todo");
+// Get addUser controller user here ...
+const { addUser } = require("../controllers/user");
 
-// Create Route here
-
+// Route
 router.get("/todos", getTodos);
 router.get("/todo/:id", getTodo);
 router.post("/todo", addTodo);
 router.patch("/todo/:id", updateTodo);
 router.delete("/todo/:id", deleteTodo);
 
-// Export module router here
+// Create Route for add user here ...
+router.post("/user", addUser);
 
 module.exports = router;

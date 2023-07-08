@@ -1,203 +1,112 @@
-# Group routes
+## Prepare
 
-Group Routes are needed in API development to differentiate a route for API or for standard website link.
+Installation :
 
-- Create folder source `src` inside it have folder `controllers` and `routes`.
+- Sequelize
+  ```text
+  npm install sequelize
+  ```
+- Migration tools
+  ```text
+  npm install sequelize-cli
+  ```
+- Add MySQL Package
+  ```text
+  npm install mysql2
+  ```
+- Init Sequelize on your project
+  ```text
+  npx sequelize init
+  ```
 
-- Create `todo.js` file inside `controllers` folder and `index.js` file inside `routes` folder.
+Database :
 
----
+- Create database named "course-express"
+- Change the config/config.json file in your project, on development object. Make sure your database config is correct
+- Create model + migration for users table (attribute : email, password, name, status)
+- Run the migration :
+  ```text
+  npx sequelize db:migrate
+  ```
 
-> File : `src/controllers/todo.js`
+Config connection database :
 
-Dummy data :
-
-```javascript
-let todos = [
-   {
-       id: 1,
-       title: "Cuci tangan",
-       isDone: true
-   },
-   {
-       id: 2,
-       title: "Jaga jarak",
-       isDone: false
-   }
-]
-...
-```
-
-Get todos :
-
-```javascript
-...
-exports.getTodos = async (req, res) => {
-  try {
-    res.send({
-      status: "success",
-      data: {
-        todos,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
-...
-```
-
-Get todo :
+> File : `src/database/connection.js`
 
 ```javascript
-...
-exports.getTodo = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const index = id - 1;
-    res.send({
-      status: "success",
-      data: {
-        todo: todos[index],
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
-...
+const Sequelize = require("sequelize");
+const db = {};
+const sequelize = new Sequelize("course-express", "root", "root", {
+  host: "localhost",
+  port: "8889",
+  dialect: "mysql",
+  logging: console.log,
+  freezeTableName: true,
+
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+});
+
+db.sequelize = sequelize;
+
+module.exports = db;
 ```
 
-Add todo :
+# Insert query with sequelize
 
-```javascript
-...
-exports.addTodo = async (req, res) => {
-  try {
-    todos = [...todos, req.body];
-    res.send({
-      status: "success",
-      data: {
-        todos,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
-...
-```
+- Controller
 
-Update todo :
+  > File : `src/controllers/user.js`
 
-```javascript
-...
-exports.updateTodo = async (req, res) => {
-  try {
-    const { id } = req.params;
-    todos[id - 1] = { ...todos[id - 1], ...req.body };
-    res.send({
-      status: "success",
-      data: {
-        todo: todos[id - 1],
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
-...
-```
+  Import db connection and QueryTypes from sequelize :
 
-Delete todo :
+  ```javascript
+  const db = require("../database/connection");
+  const { QueryTypes } = require("sequelize");
+  ```
 
-```javascript
-...
-exports.deleteTodo = async (req, res) => {
-  try {
-    const { id } = req.params;
-    todos = todos.filter((todo) => todo.id != id);
-    res.send({
-      status: "success",
-      data: {
-        todos,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
-...
-```
+  Function addUsers for insert user data to database :
 
----
+  ```javascript
+  exports.addUsers = async (req, res) => {
+    try {
+      const { email, password, name, status } = req.body;
 
-> File : `src/routes/index.js`
+      const query = `INSERT INTO users (email,password,name,status) VALUES ('${email}','${password}','${name}','${status}')`;
 
-```javascript
-const express = require("express");
+      await db.sequelize.query(query);
 
-const router = express.Router();
+      res.send({
+        status: "success",
+        message: "Add user finished",
+        query,
+      });
+    } catch (error) {
+      console.log(error);
+      res.send({
+        status: "failed",
+        message: "Server Error",
+      });
+    }
+  };
+  ```
 
-// Controller
-const {
-  getTodos,
-  getTodo,
-  addTodo,
-  updateTodo,
-  deleteTodo,
-} = require("../controllers/todo");
+* Route
 
-// Route
-router.get("/todos", getTodos);
-router.get("/todo/:id", getTodo);
-router.post("/todo", addTodo);
-router.patch("/todo/:id", updateTodo);
-router.delete("/todo/:id", deleteTodo);
+  > File : `src/routes/index.js`
 
-module.exports = router;
-```
+  Import function addUsers from user controller :
 
----
+  ```javascript
+  const { addUsers } = require("../controllers/user");
+  ```
 
-> File : `index.js`
+  Router with method post for insert user data :
 
-```javascript
-const express = require("express");
-
-// Get routes to the variabel
-const router = require("./src/routes");
-
-const app = express();
-
-const port = 5000;
-
-app.use(express.json());
-
-// Add endpoint grouping and router
-app.use("/api/v1/", router);
-
-app.listen(port, () => console.log(`Listening on port ${port}!`));
-```
-
----
+  ```javascript
+  router.post("/user", addUsers);
+  ```
